@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Aravinth P — Full Stack Developer & CS Graduate Student, Salem Tamil Nadu">
+<title>Aravinth P — Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@200;300;400;500;600;700;800;900&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #04080f;
+    --bg2:      #070d18;
+    --surface:  #0c1524;
+    --card:     #0f1b2d;
+    --cyan:     #00e5ff;
+    --cyan2:    #00bcd4;
+    --cyan-dim: rgba(0,229,255,0.1);
+    --cyan-glow:rgba(0,229,255,0.25);
+    --green:    #39ff14;
+    --white:    #e8f4f8;
+    --muted:    rgba(232,244,248,0.5);
+    --faint:    rgba(232,244,248,0.2);
+    --border:   rgba(0,229,255,0.12);
+    --border2:  rgba(0,229,255,0.25);
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── Cursor ── */
+  #cur { width:8px; height:8px; background:var(--cyan); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; transition:transform .12s; }
+  #cur-ring { width:32px; height:32px; border:1.5px solid var(--cyan); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; opacity:.45; transition:transform .45s cubic-bezier(.17,.67,.34,1); }
+
+  /* ── Scan-line overlay ── */
+  body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:1;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.012) 2px, rgba(0,229,255,0.012) 4px);
+  }
+
+  /* ── NAV ── */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 5vw;
+    background:rgba(4,8,15,0.8);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+    transition:padding .3s;
+  }
+  nav.scrolled { padding:12px 5vw; }
+  .logo {
+    font-family:'Fira Code', monospace;
+    font-size:.95rem; font-weight:400;
+    color:var(--cyan); text-decoration:none;
+    letter-spacing:.05em;
+  }
+  .logo span { color:var(--muted); }
+  .nav-links { display:flex; gap:2.2rem; list-style:none; }
+  .nav-links a {
+    font-size:.75rem; font-weight:500; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--muted);
+    text-decoration:none; transition:color .25s;
+    position:relative;
+  }
+  .nav-links a:hover { color:var(--cyan); }
+  .nav-btn {
+    padding:8px 20px;
+    border:1px solid var(--cyan);
+    color:var(--cyan) !important;
+    border-radius:4px; font-size:.72rem !important;
+    transition:background .25s, color .25s !important;
+  }
+  .nav-btn:hover { background:var(--cyan) !important; color:var(--bg) !important; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height:100vh; display:flex; flex-direction:column;
+    justify-content:center; padding:0 5vw;
+    position:relative; overflow:hidden;
+  }
+  .hero-glow {
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 70% 50% at 60% 50%, rgba(0,229,255,0.06) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(57,255,20,0.03) 0%, transparent 60%);
+  }
+  /* Animated grid */
+  .hero-grid {
+    position:absolute; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+    background-size:60px 60px;
+    animation:gridShift 20s linear infinite;
+  }
+  @keyframes gridShift { from{background-position:0 0,0 0} to{background-position:0 60px,60px 0} }
+
+  /* Floating circuit nodes */
+  .node { position:absolute; width:4px; height:4px; border-radius:50%; background:var(--cyan); opacity:.35; animation:nodePulse 4s ease-in-out infinite; }
+  .node::before { content:''; position:absolute; inset:-8px; border-radius:50%; border:1px solid var(--cyan); opacity:.3; }
+  .node:nth-child(1){ top:15%; left:20%; animation-delay:0s; }
+  .node:nth-child(2){ top:70%; left:75%; animation-delay:1.5s; }
+  .node:nth-child(3){ top:40%; left:85%; animation-delay:3s; }
+  .node:nth-child(4){ top:80%; left:30%; animation-delay:2s; }
+  @keyframes nodePulse { 0%,100%{transform:scale(1);opacity:.35} 50%{transform:scale(2);opacity:.7} }
+
+  .hero-content { position:relative; z-index:2; }
+  .hero-prefix {
+    font-family:'Fira Code', monospace;
+    font-size:.8rem; color:var(--cyan); letter-spacing:.15em;
+    margin-bottom:1.6rem;
+    display:flex; align-items:center; gap:10px;
+    opacity:0; animation:slideIn .7s .3s forwards;
+  }
+  .hero-prefix::before { content:''; width:32px; height:1px; background:var(--cyan); }
+  .blink { animation:blink .9s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  h1.hero-name {
+    font-family:'Outfit', sans-serif;
+    font-size:clamp(4rem,9.5vw,8.5rem);
+    font-weight:800; line-height:.95;
+    letter-spacing:-.03em;
+    opacity:0; animation:slideIn .8s .5s forwards;
+  }
+  h1.hero-name .first { color:var(--white); }
+  h1.hero-name .last {
+    display:block;
+    -webkit-text-stroke: 2px var(--cyan);
+    color:transparent;
+    transition:color .3s;
+  }
+  h1.hero-name .last:hover { color:var(--cyan); }
+
+  .hero-tagline {
+    margin-top:2rem; max-width:520px;
+    font-size:1rem; font-weight:300; line-height:1.8;
+    color:var(--muted); letter-spacing:.02em;
+    opacity:0; animation:slideIn .8s .7s forwards;
+  }
+  .hero-tagline strong { color:var(--cyan); font-weight:500; }
+
+  .hero-actions {
+    margin-top:3rem; display:flex; gap:1rem; flex-wrap:wrap;
+    opacity:0; animation:slideIn .8s .9s forwards;
+  }
+  .btn-primary {
+    padding:13px 32px; background:var(--cyan); color:var(--bg);
+    font-family:'Outfit'; font-size:.8rem; font-weight:700;
+    letter-spacing:.12em; text-transform:uppercase;
+    text-decoration:none; border-radius:4px; cursor:none;
+    transition:box-shadow .3s, transform .3s;
+  }
+  .btn-primary:hover { box-shadow:0 0 32px var(--cyan-glow); transform:translateY(-2px); }
+  .btn-ghost {
+    padding:13px 32px; background:transparent; color:var(--white);
+    font-family:'Outfit'; font-size:.8rem; font-weight:600;
+    letter-spacing:.12em; text-transform:uppercase;
+    text-decoration:none; border:1px solid var(--border2);
+    border-radius:4px; cursor:none;
+    transition:border-color .3s, color .3s;
+  }
+  .btn-ghost:hover { border-color:var(--cyan); color:var(--cyan); }
+
+  .hero-metrics {
+    position:absolute; bottom:4rem; right:5vw; z-index:2;
+    display:flex; gap:3rem;
+    opacity:0; animation:fadeIn .8s 1.2s forwards;
+  }
+  .metric { text-align:center; }
+  .metric-val { font-size:2.2rem; font-weight:800; color:var(--cyan); line-height:1; }
+  .metric-label { font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin-top:4px; }
+
+  .scroll-ind {
+    position:absolute; bottom:3rem; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    opacity:0; animation:fadeIn .8s 1.4s forwards;
+  }
+  .scroll-txt { font-family:'Fira Code'; font-size:.6rem; letter-spacing:.2em; color:var(--faint); }
+  .scroll-bar { width:1px; height:48px; background:linear-gradient(to bottom, var(--cyan), transparent); animation:scrollAnim 1.8s ease-in-out infinite; }
+  @keyframes scrollAnim { 0%,100%{opacity:.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.2)} }
+
+  @keyframes slideIn { from{opacity:0;transform:translateX(-30px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+
+  /* ── SECTIONS ── */
+  section { padding:110px 5vw; position:relative; }
+  #about        { background:var(--bg2); }
+  #skills       { background:var(--bg); }
+  #experience   { background:var(--bg2); }
+  #projects     { background:var(--bg); }
+  #certifications{ background:var(--bg2); }
+  #contact      { background:var(--bg); }
+
+  .sec-label {
+    font-family:'Fira Code'; font-size:.7rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--cyan);
+    display:flex; align-items:center; gap:12px; margin-bottom:1.2rem;
+  }
+  .sec-label::before { content:''; width:28px; height:1px; background:var(--cyan); }
+  .sec-title {
+    font-size:clamp(2.2rem,4.5vw,3.8rem); font-weight:800;
+    letter-spacing:-.03em; line-height:1.05; margin-bottom:64px;
+  }
+  .sec-title span { color:var(--cyan); }
+
+  /* Reveal */
+  .rev { opacity:0; transform:translateY(36px); transition:opacity .85s cubic-bezier(.25,.46,.45,.94), transform .85s cubic-bezier(.25,.46,.45,.94); }
+  .rev.on { opacity:1; transform:none; }
+  .d1 { transition-delay:.1s; } .d2 { transition-delay:.2s; } .d3 { transition-delay:.3s; } .d4 { transition-delay:.4s; }
+
+  /* ── ABOUT ── */
+  .about-wrap { display:grid; grid-template-columns:1.1fr 1fr; gap:72px; align-items:start; }
+  .about-body p { font-size:1.05rem; font-weight:300; line-height:1.9; color:var(--muted); margin-bottom:1.4rem; }
+  .about-body p strong { color:var(--white); font-weight:500; }
+  .about-table { margin-top:2.4rem; }
+  .arow { display:flex; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border); font-size:.82rem; }
+  .akey { color:var(--faint); text-transform:uppercase; letter-spacing:.1em; font-size:.68rem; }
+  .aval { color:var(--white); font-weight:500; }
+  .aval.green { color:var(--green); }
+
+  .edu-stack { display:flex; flex-direction:column; gap:12px; }
+  .edu-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:6px; padding:22px 26px;
+    transition:border-color .3s, transform .3s;
+  }
+  .edu-card:hover { border-color:var(--cyan); transform:translateX(8px); }
+  .edu-deg { font-size:.95rem; font-weight:600; margin-bottom:4px; }
+  .edu-school { font-size:.78rem; color:var(--muted); margin-bottom:8px; }
+  .edu-row { display:flex; justify-content:space-between; font-size:.7rem; color:var(--faint); }
+  .edu-gpa { color:var(--cyan); font-weight:600; }
+
+  /* ── SKILLS ── */
+  .skills-wrap { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .sk-box {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:6px; padding:32px 28px;
+    position:relative; overflow:hidden;
+    transition:border-color .3s;
+  }
+  .sk-box::after {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--cyan), transparent);
+    transform:scaleX(0); transform-origin:left; transition:transform .4s;
+  }
+  .sk-box:hover { border-color:var(--cyan); }
+  .sk-box:hover::after { transform:scaleX(1); }
+  .sk-icon { font-size:1.6rem; margin-bottom:1rem; }
+  .sk-cat { font-family:'Fira Code'; font-size:.65rem; letter-spacing:.18em; color:var(--cyan); text-transform:uppercase; margin-bottom:1.2rem; }
+  .sk-pills { display:flex; flex-wrap:wrap; gap:7px; }
+  .sk-pill {
+    font-family:'Fira Code'; font-size:.68rem;
+    padding:4px 11px; border-radius:3px;
+    border:1px solid var(--border2); color:var(--muted);
+    transition:background .25s, color .25s, border-color .25s;
+  }
+  .sk-pill:hover { background:var(--cyan-dim); color:var(--cyan); border-color:var(--cyan); }
+
+  /* ── EXPERIENCE ── */
+  .exp-wrap {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:8px; padding:52px 56px; max-width:880px;
+    position:relative; overflow:hidden;
+  }
+  .exp-wrap::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(to bottom, var(--cyan), transparent);
+  }
+  .exp-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; margin-bottom:2rem; }
+  .exp-left {}
+  .exp-role { font-family:'Fira Code'; font-size:.72rem; color:var(--cyan); letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px; }
+  .exp-co { font-size:1.9rem; font-weight:800; letter-spacing:-.02em; }
+  .exp-badge {
+    padding:6px 16px; border:1px solid var(--border2);
+    border-radius:20px; font-family:'Fira Code'; font-size:.68rem;
+    color:var(--muted); letter-spacing:.08em;
+  }
+  .exp-pts { list-style:none; display:flex; flex-direction:column; gap:14px; }
+  .exp-pts li { display:flex; gap:14px; font-size:.88rem; line-height:1.75; color:var(--muted); }
+  .exp-pts li::before { content:'▶'; color:var(--cyan); font-size:.55rem; margin-top:5px; flex-shrink:0; }
+
+  /* ── PROJECTS ── */
+  .proj-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .proj-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:8px; padding:40px 36px;
+    position:relative; overflow:hidden; cursor:none;
+    transition:border-color .35s, transform .35s;
+  }
+  .proj-card::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse at top left, var(--cyan-dim), transparent 55%);
+    opacity:0; transition:opacity .35s;
+  }
+  .proj-card:hover { border-color:var(--cyan); transform:translateY(-6px); }
+  .proj-card:hover::before { opacity:1; }
+  .proj-num { font-family:'Fira Code'; font-size:3.6rem; color:var(--border); line-height:1; margin-bottom:1.4rem; font-weight:300; }
+  .proj-title { font-size:1.5rem; font-weight:700; margin-bottom:.9rem; line-height:1.2; }
+  .proj-desc { font-size:.83rem; line-height:1.8; color:var(--muted); margin-bottom:1.6rem; }
+  .proj-pts { display:flex; flex-direction:column; gap:9px; margin-bottom:1.8rem; }
+  .proj-pt { font-size:.78rem; color:var(--faint); display:flex; gap:10px; }
+  .proj-pt::before { content:'//'; color:var(--cyan); font-family:'Fira Code'; font-size:.7rem; flex-shrink:0; }
+  .proj-chips { display:flex; flex-wrap:wrap; gap:7px; }
+  .proj-chip { font-family:'Fira Code'; font-size:.63rem; padding:3px 10px; background:var(--cyan-dim); color:var(--cyan); border-radius:3px; }
+
+  /* ── CERTS ── */
+  .certs-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+  .cert-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:8px; padding:32px 30px;
+    display:flex; flex-direction:column; gap:1rem;
+    transition:border-color .3s, transform .3s; position:relative; overflow:hidden;
+  }
+  .cert-card:hover { border-color:var(--cyan); transform:translateY(-4px); }
+  .cert-icon {
+    width:48px; height:48px; border-radius:8px;
+    background:var(--cyan-dim); border:1px solid var(--border2);
+    display:flex; align-items:center; justify-content:center; font-size:1.4rem;
+  }
+  .cert-name { font-size:1rem; font-weight:700; }
+  .cert-org { font-size:.76rem; color:var(--muted); }
+  .cert-year { font-family:'Fira Code'; font-size:.68rem; color:var(--cyan); margin-top:auto; }
+  .cert-tag {
+    position:absolute; top:16px; right:16px;
+    background:var(--cyan); color:var(--bg);
+    font-size:.58rem; font-weight:700; letter-spacing:.1em;
+    text-transform:uppercase; padding:3px 9px; border-radius:3px;
+  }
+
+  /* ── CONTACT ── */
+  .contact-wrap { display:grid; grid-template-columns:1fr 1.2fr; gap:72px; align-items:start; }
+  .contact-intro { font-size:1rem; font-weight:300; line-height:1.9; color:var(--muted); margin-bottom:2.8rem; }
+  .c-links { display:flex; flex-direction:column; }
+  .c-link {
+    display:flex; align-items:center; gap:18px;
+    padding:18px 0; border-bottom:1px solid var(--border);
+    text-decoration:none; color:var(--muted); cursor:none;
+    transition:color .25s;
+  }
+  .c-link:hover { color:var(--white); }
+  .c-link:hover .c-icon { background:var(--cyan); color:var(--bg); border-color:var(--cyan); }
+  .c-icon {
+    width:42px; height:42px; border:1px solid var(--border2);
+    border-radius:6px; display:flex; align-items:center; justify-content:center;
+    font-size:.95rem; flex-shrink:0; transition:background .25s, color .25s, border-color .25s;
+  }
+  .c-info {}
+  .c-lbl { font-family:'Fira Code'; font-size:.6rem; letter-spacing:.15em; text-transform:uppercase; color:var(--faint); margin-bottom:3px; }
+  .c-val { font-size:.85rem; }
+
+  /* Form */
+  .contact-form { display:flex; flex-direction:column; gap:0; }
+  .frow { position:relative; border-bottom:1px solid var(--border); transition:border-color .3s; }
+  .frow:focus-within { border-color:var(--cyan); }
+  .frow label {
+    position:absolute; top:18px; left:0;
+    font-family:'Fira Code'; font-size:.65rem; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--faint);
+    transition:transform .2s, font-size .2s, color .2s; pointer-events:none;
+  }
+  .frow.up label, .frow:focus-within label { transform:translateY(-18px); font-size:.55rem; color:var(--cyan); }
+  .frow input, .frow textarea {
+    width:100%; background:transparent; border:none; outline:none;
+    padding:30px 0 10px; font-family:'Outfit'; font-size:.95rem;
+    color:var(--white); resize:none;
+  }
+  .frow textarea { min-height:110px; }
+  .f-submit {
+    margin-top:2.4rem; align-self:flex-start;
+    padding:14px 40px; background:var(--cyan); color:var(--bg);
+    font-family:'Outfit'; font-size:.78rem; font-weight:700;
+    letter-spacing:.12em; text-transform:uppercase;
+    border:none; cursor:none; border-radius:4px;
+    transition:box-shadow .3s, transform .3s;
+  }
+  .f-submit:hover { box-shadow:0 0 32px var(--cyan-glow); transform:translateY(-2px); }
+  .f-ok { display:none; margin-top:1.4rem; font-family:'Fira Code'; font-size:.75rem; color:var(--cyan); letter-spacing:.08em; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding:36px 5vw; border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--bg2);
+  }
+  .f-copy { font-family:'Fira Code'; font-size:.7rem; color:var(--faint); letter-spacing:.08em; }
+  .f-links { display:flex; gap:2rem; }
+  .f-links a { font-size:.72rem; color:var(--faint); text-decoration:none; transition:color .25s; }
+  .f-links a:hover { color:var(--cyan); }
+
+  /* ── mobile ── */
+  @media(max-width:768px){
+    .nav-links { display:none; }
+    .about-wrap,.proj-grid,.contact-wrap { grid-template-columns:1fr; gap:40px; }
+    .skills-wrap { grid-template-columns:1fr; }
+    .hero-metrics { display:none; }
+    .exp-wrap { padding:28px 24px; }
+    footer { flex-direction:column; gap:1rem; text-align:center; }
+    .f-links { flex-wrap:wrap; justify-content:center; }
+  }
+  @media(min-width:769px) and (max-width:1100px){
+    .skills-wrap { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="logo"><span>&lt;</span>AP<span>/&gt;</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#contact" class="nav-btn">Connect</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="node"></div>
+  <div class="node"></div>
+  <div class="node"></div>
+  <div class="node"></div>
+
+  <div class="hero-content">
+    <p class="hero-prefix">init_portfolio.py<span class="blink">_</span></p>
+    <h1 class="hero-name">
+      <span class="first">ARAVINTH</span>
+      <span class="last">P</span>
+    </h1>
+    <p class="hero-tagline">
+      <strong>Full Stack Developer</strong> &amp; AI Enthusiast — building secure, intelligent systems from blockchain voting infrastructure to real-time NLP-powered applications.
+    </p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn-primary">View Work</a>
+      <a href="#contact"  class="btn-ghost">Get In Touch</a>
+    </div>
+  </div>
+
+  <div class="hero-metrics">
+    <div class="metric"><div class="metric-val">2+</div><div class="metric-label">Projects</div></div>
+    <div class="metric"><div class="metric-val">1</div><div class="metric-label">Internship</div></div>
+    <div class="metric"><div class="metric-val">7.5</div><div class="metric-label">CGPA</div></div>
+  </div>
+
+  <div class="scroll-ind">
+    <span class="scroll-txt">scroll</span>
+    <div class="scroll-bar"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-label rev">01 · Background</div>
+  <h2 class="sec-title rev">About <span>Me</span></h2>
+  <div class="about-wrap">
+    <div class="about-body rev">
+      <p>I'm a <strong>dedicated Computer Science graduate student</strong> at Sona College of Arts and Science, Salem — driven by a passion for creating technology that is both intelligent and secure.</p>
+      <p>My work spans <strong>full-stack web development, AI-powered applications, and blockchain engineering</strong>. I thrive where complex problems meet elegant solutions.</p>
+      <p>Currently pursuing my <strong>M.Sc in Computer Science</strong> (2024–2026) while actively exploring opportunities in tech.</p>
+      <div class="about-table">
+        <div class="arow"><span class="akey">Location</span><span class="aval">Salem, Tamil Nadu, India</span></div>
+        <div class="arow"><span class="akey">Email</span><span class="aval">paravinth175@gmail.com</span></div>
+        <div class="arow"><span class="akey">Phone</span><span class="aval">+91 9360349543</span></div>
+        <div class="arow"><span class="akey">Status</span><span class="aval green">● Open to Opportunities</span></div>
+      </div>
+    </div>
+    <div class="edu-stack rev d2">
+      <div class="edu-card"><div class="edu-deg">M.Sc Computer Science</div><div class="edu-school">Sona College of Arts and Science, Salem</div><div class="edu-row"><span>2024 – 2026</span><span class="edu-gpa">CGPA 7.5</span></div></div>
+      <div class="edu-card"><div class="edu-deg">B.Sc Computer Science</div><div class="edu-school">Sona College of Arts and Science, Salem</div><div class="edu-row"><span>2021 – 2024</span><span class="edu-gpa">CGPA 6.8</span></div></div>
+      <div class="edu-card"><div class="edu-deg">Higher Secondary (HSS)</div><div class="edu-school">Shri Swamy Matriculation HSS, Salem</div><div class="edu-row"><span>2021</span><span class="edu-gpa">67.33%</span></div></div>
+      <div class="edu-card"><div class="edu-deg">SSLC</div><div class="edu-school">Shri Swamy Matriculation HSS, Salem</div><div class="edu-row"><span>2019</span><span class="edu-gpa">54%</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="sec-label rev">02 · Capabilities</div>
+  <h2 class="sec-title rev">Technical <span>Skills</span></h2>
+  <div class="skills-wrap">
+    <div class="sk-box rev"><div class="sk-icon">⌨️</div><div class="sk-cat">Languages</div><div class="sk-pills"><span class="sk-pill">Python</span><span class="sk-pill">Java</span><span class="sk-pill">C++</span><span class="sk-pill">JavaScript</span></div></div>
+    <div class="sk-box rev d1"><div class="sk-icon">🌐</div><div class="sk-cat">Web Dev</div><div class="sk-pills"><span class="sk-pill">HTML5</span><span class="sk-pill">CSS3</span><span class="sk-pill">React.js</span><span class="sk-pill">Node.js</span><span class="sk-pill">Express.js</span></div></div>
+    <div class="sk-box rev d2"><div class="sk-icon">🗄️</div><div class="sk-cat">Database</div><div class="sk-pills"><span class="sk-pill">MySQL</span><span class="sk-pill">SQL</span></div></div>
+    <div class="sk-box rev d1"><div class="sk-icon">🔧</div><div class="sk-cat">Tools</div><div class="sk-pills"><span class="sk-pill">GitHub</span><span class="sk-pill">Git</span><span class="sk-pill">Spyder</span><span class="sk-pill">Eclipse</span></div></div>
+    <div class="sk-box rev d2"><div class="sk-icon">🧠</div><div class="sk-cat">AI / ML</div><div class="sk-pills"><span class="sk-pill">NLP</span><span class="sk-pill">TF-IDF</span><span class="sk-pill">Tokenization</span><span class="sk-pill">ML Models</span></div></div>
+    <div class="sk-box rev d3"><div class="sk-icon">🔐</div><div class="sk-cat">Emerging Tech</div><div class="sk-pills"><span class="sk-pill">Blockchain</span><span class="sk-pill">Smart Contracts</span><span class="sk-pill">Cybersecurity</span><span class="sk-pill">Cloud</span></div></div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="sec-label rev">03 · Work</div>
+  <h2 class="sec-title rev">Professional <span>Experience</span></h2>
+  <div class="exp-wrap rev">
+    <div class="exp-header">
+      <div class="exp-left">
+        <div class="exp-role">Full Stack Development Intern</div>
+        <div class="exp-co">Tech Forge Company</div>
+      </div>
+      <div class="exp-badge">June 2025 · Salem, TN</div>
+    </div>
+    <ul class="exp-pts">
+      <li>Developed and deployed complete web applications covering both frontend and backend, from responsive UIs to RESTful APIs and database integrations.</li>
+      <li>Built interactive client-side interfaces using <strong style="color:var(--white)">HTML, CSS, JavaScript</strong>, React and Angular for modern, responsive user experiences.</li>
+      <li>Implemented server-side systems with <strong style="color:var(--white)">Node.js, Express.js and Python</strong>, handling application logic, routing, and data management.</li>
+      <li>Gained full-cycle experience in API design, database architecture, version control, and deployment workflows.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="sec-label rev">04 · Portfolio</div>
+  <h2 class="sec-title rev">Featured <span>Projects</span></h2>
+  <div class="proj-grid">
+    <div class="proj-card rev">
+      <div class="proj-num">01</div>
+      <h3 class="proj-title">Blockchain Based Online Voting System</h3>
+      <p class="proj-desc">A secure, transparent digital election platform using blockchain technology for tamper-proof, cryptographically verifiable vote records.</p>
+      <div class="proj-pts">
+        <div class="proj-pt">Voter verification with unique digital ID issuance via secure registration.</div>
+        <div class="proj-pt">Smart contracts enforcing one-vote-per-voter with immutable on-chain validation.</div>
+      </div>
+      <div class="proj-chips"><span class="proj-chip">Blockchain</span><span class="proj-chip">Smart Contracts</span><span class="proj-chip">Web3</span><span class="proj-chip">Security</span></div>
+    </div>
+    <div class="proj-card rev d2">
+      <div class="proj-num">02</div>
+      <h3 class="proj-title">Real-Time Fake News Detection</h3>
+      <p class="proj-desc">An AI-driven platform that classifies news articles in real time using NLP techniques — tokenization, stop-word removal, and TF-IDF vectorization.</p>
+      <div class="proj-pts">
+        <div class="proj-pt">End-to-end NLP pipeline for accurate fake vs. genuine classification.</div>
+        <div class="proj-pt">React.js web interface for live news submission and result visualization.</div>
+      </div>
+      <div class="proj-chips"><span class="proj-chip">Python</span><span class="proj-chip">NLP</span><span class="proj-chip">React.js</span><span class="proj-chip">TF-IDF</span><span class="proj-chip">AI</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="sec-label rev">05 · Recognition</div>
+  <h2 class="sec-title rev">Certifications &amp; <span>Credentials</span></h2>
+  <div class="certs-grid">
+    <div class="cert-card rev">
+      <div class="cert-tag">Verified</div>
+      <div class="cert-icon">🐍</div>
+      <div class="cert-name">Python Full Stack Developer</div>
+      <div class="cert-org">Salem — Professional Certification</div>
+      <div class="cert-year">// 2025</div>
+    </div>
+    <div class="cert-card rev d1">
+      <div class="cert-icon">🌐</div>
+      <div class="cert-name">Full Stack Web Development</div>
+      <div class="cert-org">Tech Forge Company, Salem</div>
+      <div class="cert-year">// 2025</div>
+    </div>
+    <div class="cert-card rev d2">
+      <div class="cert-icon">🔗</div>
+      <div class="cert-name">Blockchain Technology</div>
+      <div class="cert-org">Academic Project Certification</div>
+      <div class="cert-year">// 2025</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sec-label rev">06 · Connect</div>
+  <h2 class="sec-title rev">Get In <span>Touch</span></h2>
+  <div class="contact-wrap">
+    <div class="rev">
+      <p class="contact-intro">Open to collaborations, internships, full-time roles, or just a great tech conversation. Reach out — I respond quickly.</p>
+      <div class="c-links">
+        <a href="https://linkedin.com" target="_blank" class="c-link">
+          <div class="c-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></div>
+          <div class="c-info"><div class="c-lbl">LinkedIn</div><div class="c-val">linkedin.com/in/aravinthp</div></div>
+        </a>
+        <a href="https://github.com" target="_blank" class="c-link">
+          <div class="c-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></div>
+          <div class="c-info"><div class="c-lbl">GitHub</div><div class="c-val">github.com/aravinthp</div></div>
+        </a>
+        <a href="mailto:paravinth175@gmail.com" class="c-link">
+          <div class="c-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div class="c-info"><div class="c-lbl">Email</div><div class="c-val">paravinth175@gmail.com</div></div>
+        </a>
+        <a href="tel:+919360349543" class="c-link">
+          <div class="c-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.45 2 2 0 0 1 3.59 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.06-1.06a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+          <div class="c-info"><div class="c-lbl">Phone</div><div class="c-val">+91 9360349543</div></div>
+        </a>
+      </div>
+    </div>
+    <div class="rev d2">
+      <form class="contact-form" id="cForm" onsubmit="doSend(event)">
+        <div class="frow" id="fn"><label>Name</label><input type="text" oninput="up('fn')" onblur="dn('fn',this)"></div>
+        <div class="frow" id="fe"><label>Email</label><input type="email" oninput="up('fe')" onblur="dn('fe',this)"></div>
+        <div class="frow" id="fm"><label>Message</label><textarea rows="5" oninput="up('fm')" onblur="dn('fm',this)"></textarea></div>
+        <button type="submit" class="f-submit">Send Message →</button>
+        <div class="f-ok" id="fOk">✓ Sent! I'll reply soon.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="f-copy">© 2026 ARAVINTH P. All rights reserved.</span>
+  <div class="f-links">
+    <a href="#hero">Home</a><a href="#about">About</a><a href="#projects">Projects</a><a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+// Cursor
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function raf(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(raf);})();
+document.querySelectorAll('a,button,.proj-card,.sk-box,.edu-card,.cert-card,.c-link').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2.2)';ring.style.opacity='.2';});
+  el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';ring.style.opacity='.45';});
+});
+
+// Nav
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+
+// Reveal
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');obs.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.rev').forEach(el=>obs.observe(el));
+
+// Form
+function up(id){document.getElementById(id).classList.add('up');}
+function dn(id,el){if(!el.value)document.getElementById(id).classList.remove('up');}
+function doSend(e){
+  e.preventDefault();
+  const b=document.querySelector('.f-submit');
+  b.textContent='Sending...'; b.disabled=true;
+  setTimeout(()=>{b.style.display='none';document.getElementById('fOk').style.display='block';
+    document.getElementById('cForm').reset();
+    document.querySelectorAll('.frow').forEach(r=>r.classList.remove('up'));
+  },1100);
+}
+</script>
+</body>
+</html>
